@@ -1,0 +1,446 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/app-route/app-location.html">
+<link rel="import" href="bower_components/app-route/app-route.html">
+<link rel="import" href="bower_components/paper-card/paper-card.html">
+<link rel="import" href="bower_components/paper-button/paper-button.html">
+<link rel="import" href="bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="simple-countdown-app">
+	<template>
+		<style include="shared-styles"></style>
+		<style>
+			:host
+			{
+				font-family: var(--normal-font-family);
+				font-weight: var(--normal-font-weight);
+				font-style: var(--normal-font-style);
+				font-size: 18px;
+			}
+
+			div.main-content
+			{
+				max-width: 600px;
+				margin: 0px auto;
+				padding: 0px 20px 20px 20px;
+			}
+
+			paper-card
+			{
+				@apply(--shadow-elevation-4dp);
+				margin-top: 20px;
+				width: 100%;
+				border-radius: 8px;
+				font-family: var(--normal-font-family);
+				font-weight: var(--normal-font-weight);
+				font-style: var(--normal-font-style);
+
+				--paper-card-header-text:
+				{
+					font-family: var(--heading-font-family);
+					font-weight: var(--heading-font-weight);
+					font-style: var(--heading-font-style);
+					font-size: 210%;
+					padding-top: 20px;
+					padding-bottom: 0px;
+				};
+			}
+
+			paper-radio-button,
+			paper-input
+			{
+				font-family: var(--normal-font-family);
+				font-weight: var(--normal-font-weight);
+				font-style: var(--normal-font-style);
+			}
+
+			paper-input[type="datetime-local"]
+			{
+				display: inline-block;
+
+				--paper-input-container-label:
+				{
+					font-family: var(--normal-font-family);
+					font-weight: var(--normal-font-weight);
+					font-style: var(--normal-font-style);
+					font-size: 130%;
+					color: black;
+				}
+
+				--paper-input-container-input:
+				{
+					font-family: var(--normal-font-family);
+					font-weight: var(--normal-font-weight);
+					font-style: var(--normal-font-style);
+					font-size: 135%;
+					margin-top: 6px;
+				}
+			}
+
+			div.panel
+			{
+				border-radius: 8px;
+				border: 2px solid transparent;
+				padding: 12px;
+				margin: 0px;
+			}
+
+			div.panel + div.panel
+			{
+				margin-top: 10px;
+			}
+
+			div.subpanel
+			{
+				box-sizing: border-box;
+				padding-left: 8px;
+				margin: 12px 0px;
+			}
+
+			div.subheading
+			{
+				font-family: var(--subheading-font-family);
+				font-weight: var(--subheading-font-weight);
+				font-style: var(--subheading-font-style);
+				font-size: 135%;
+				margin: 0px;
+			}
+
+			div.panel#settings
+			{
+				border: 2px solid #01579B;
+				background-color: #E1F5FE;
+			}
+
+			div.panel#settings div.subpanel
+			{
+				border-left: 8px solid #01579B;
+			}
+
+			div.panel#status
+			{
+				font-size: 115%;
+				border: 2px solid #E91E63;
+				background-color: #FCE4EC;
+			}
+
+			div.panel#status div.subpanel
+			{
+				border-left: 8px solid #E91E63;
+			}
+		</style>
+		<!-- <app-location route="{{route}}" use-hash-as-path url-space-regex="^/#/"></app-location> -->
+		<!-- <app-route route="{{route}}" pattern="/:page" data="{{routeData}}"></app-route> -->
+
+		<div class="main-content">
+			<paper-card heading="Simple Countdown" alt="Simple Countdown">
+				<div class="card-content">
+					<div class="panel" id="settings">
+						<div class="subheading">Settings</div>
+						<div class="subpanel">
+							Event is ...
+							<paper-radio-group selected="{{pointVsInterval}}">
+								<paper-radio-button name="point">a point in time</paper-radio-button>
+								<paper-radio-button name="interval">an interval of time</paper-radio-button>
+							</paper-radio-group>
+						</div>
+						<!-- Point -->
+						<div class="subpanel" hidden$="[[!isPoint]]">
+							<paper-input label="Event time" type="datetime-local" id="event-point-time" value="{{eventPointTimeString}}" on-change="handleEventTimeChange">
+						</div>
+						<!-- Interval -->
+						<div class="subpanel" hidden$="[[isPoint]]">
+							<paper-input label="Event start time" type="datetime-local" id="event-start-time" value="{{eventStartTimeString}}" on-change="handleEventTimeChange">
+						</div>
+						<div class="subpanel" hidden$="[[isPoint]]">
+							<paper-input label="Event end time" type="datetime-local" id="event-end-time" value="{{eventEndTimeString}}" on-change="handleEventTimeChange">
+						</div>
+					</div>
+					<div class="panel" id="status">
+						<div class="subheading">Countdown</div>
+						<div class="subpanel">
+							Current time:
+							<span style="font-weight:bold;">[[currentTimeString]]</span>.
+						</div>
+						<!-- Point -->
+						<div class="subpanel" hidden$="[[!isPoint]]">
+							Time <span>[[toSincePointTimeTerm]]</span> event
+							(<span>[[eventPointTimeString]]</span>):<br>
+							<span style="font-weight:bold;">[[toSincePointTime]]</span>.
+						</div>
+						<!-- Interval -->
+						<div class="subpanel" hidden$="[[isPoint]]">
+							Event duration:<br>
+							<span style="font-weight:bold;">[[eventDuration]]</span>.
+						</div>
+						<div class="subpanel" hidden$="[[isPoint]]">
+							Event progress:<br>
+							<span style="font-weight:bold;">[[eventProgress]]</span>.
+						</div>
+						<div class="subpanel" hidden$="[[isPoint]]">
+							Time <span>[[toSinceStartTimeTerm]]</span> start of event
+							(<span>[[eventStartTimeString]]</span>):<br>
+							<span style="font-weight:bold;">[[toSinceStartTime]]</span>.
+						</div>
+						<div class="subpanel" hidden$="[[isPoint]]">
+							Time <span>[[toSinceEndTimeTerm]]</span> end of event
+							(<span>[[eventEndTimeString]]</span>):<br>
+							<span style="font-weight:bold;">[[toSinceEndTime]]</span>.
+						</div>
+					</div>
+				</div>
+			</paper-card>
+		</div>
+	</template>
+	<script>
+		Polymer(
+		{
+			is: "simple-countdown-app",
+			properties:
+			{
+				routeData:
+				{
+					type: Object,
+					value:
+					{
+						page: "home"
+					}
+				},
+				pointVsInterval:
+				{
+					type: String,
+					value: "point"
+				},
+				isPoint:
+				{
+					type: Boolean,
+					computed: "computeIsPoint(pointVsInterval)"
+				},
+				currentTimeString:
+				{
+					type: Number,
+					computed: "computeTimeString(currentTimeEpochMillis)"
+				},
+				currentTimeEpochMillis:
+				{
+					type: Number,
+					value: null
+				},
+				eventPointTimeString:
+				{
+					type: String,
+					value: null
+				},
+				eventPointTimeEpochMillis:
+				{
+					type: Number,
+					computed: "computeEpochMillis(eventPointTimeString)"
+				},
+				toSincePointTimeTerm:
+				{
+					type: String,
+					computed: "getToSinceTerm(currentTimeEpochMillis,eventPointTimeEpochMillis)"
+				},
+				toSincePointTime:
+				{
+					type: String,
+					computed: "getTimeDifferenceBreakdown(currentTimeEpochMillis,eventPointTimeEpochMillis)"
+				},
+				eventStartTimeString:
+				{
+					type: String,
+					value: null
+				},
+				eventStartTimeEpochMillis:
+				{
+					type: Number,
+					computed: "computeEpochMillis(eventStartTimeString)"
+				},
+				toSinceStartTimeTerm:
+				{
+					type: String,
+					computed: "getToSinceTerm(currentTimeEpochMillis,eventStartTimeEpochMillis)"
+				},
+				toSinceStartTime:
+				{
+					type: String,
+					computed: "getTimeDifferenceBreakdown(currentTimeEpochMillis,eventStartTimeEpochMillis)"
+				},
+				eventEndTimeString:
+				{
+					type: String,
+					value: null
+				},
+				eventEndTimeEpochMillis:
+				{
+					type: Number,
+					computed: "computeEpochMillis(eventEndTimeString)"
+				},
+				toSinceEndTimeTerm:
+				{
+					type: String,
+					computed: "getToSinceTerm(currentTimeEpochMillis,eventEndTimeEpochMillis)"
+				},
+				toSinceEndTime:
+				{
+					type: String,
+					computed: "getTimeDifferenceBreakdown(currentTimeEpochMillis,eventEndTimeEpochMillis)"
+				},
+				eventDuration:
+				{
+					type: String,
+					computed: "getEventDuration(eventStartTimeEpochMillis,eventEndTimeEpochMillis)"
+				},
+				eventProgress:
+				{
+					type: String,
+					computed: "getEventProgress(eventStartTimeEpochMillis,eventEndTimeEpochMillis,currentTimeEpochMillis)"
+				}
+			},
+			ready: function()
+			{
+				/* set default event times */
+				var d1 = new Date();
+				var d2 = new Date(d1.getTime() + 60 * 60 * 1000);
+
+				this.set("eventPointTimeString",
+					zeroPad(d1.getFullYear(), 4) + "-" +
+					zeroPad(d1.getMonth() + 1, 2) + "-" +
+					zeroPad(d1.getDate(), 2) + "T" +
+					zeroPad(d1.getHours(), 2) + ":" +
+					zeroPad(d1.getMinutes(), 2));
+
+				this.set("eventStartTimeString",
+					zeroPad(d1.getFullYear(), 4) + "-" +
+					zeroPad(d1.getMonth() + 1, 2) + "-" +
+					zeroPad(d1.getDate(), 2) + "T" +
+					zeroPad(d1.getHours(), 2) + ":" +
+					zeroPad(d1.getMinutes(), 2));
+
+				this.set("eventEndTimeString",
+					zeroPad(d2.getFullYear(), 4) + "-" +
+					zeroPad(d2.getMonth() + 1, 2) + "-" +
+					zeroPad(d2.getDate(), 2) + "T" +
+					zeroPad(d2.getHours(), 2) + ":" +
+					zeroPad(d2.getMinutes(), 2));
+
+				/* start timer to refresh countdown */
+				setInterval(this.refreshCountdown(this), 250);
+			},
+			handleEventTimeChange: function()
+			{
+				//TODO
+				console.log("Called handleEventTimeChange()");
+
+			},
+			refreshCountdown: function(p)
+			{
+				return function()
+				{
+					p.set("currentTimeEpochMillis", new Date().getTime());
+				};
+			},
+			computeIsPoint: function(pointVsInterval)
+			{
+				return (pointVsInterval == "point");
+			},
+			computeEpochMillis: function(s)
+			{
+				try
+				{
+					var d = new Date(s + "Z");
+					var offsetMillis = d.getTimezoneOffset() * 60 * 1000;
+					return (d.getTime() + offsetMillis);
+				}
+				catch (err)
+				{
+					return NaN;
+				}
+			},
+			computeTimeString: function(epochMillis)
+			{
+				var d = new Date(epochMillis);
+
+				return zeroPad(d.getFullYear(), 4) + "-" +
+					zeroPad(d.getMonth() + 1, 2) + "-" +
+					zeroPad(d.getDate(), 2) + "T" +
+					zeroPad(d.getHours(), 2) + ":" +
+					zeroPad(d.getMinutes(), 2) + ":" +
+					zeroPad(d.getSeconds(), 2);
+			},
+			getToSinceTerm: function(currentTime, eventTime)
+			{
+				if (currentTime > eventTime) return "elapsed since";
+				return "remaining to";
+			},
+			getTimeDifferenceBreakdown: function(millis1, millis2)
+			{
+				var millis = millis1 - millis2;
+				if (Number.isNaN(millis)) return "N/A";
+
+				var millisLeft = Math.abs(millis);
+				var days = Math.floor(millisLeft / (24 * 60 * 60 * 1000));
+				millisLeft -= days * (24 * 60 * 60 * 1000);
+				var hours = Math.floor(millisLeft / (60 * 60 * 1000));
+				millisLeft -= hours * (60 * 60 * 1000);
+				var mins = Math.floor(millisLeft / (60 * 1000));
+				millisLeft -= mins * (60 * 1000);
+				var secs = Math.floor(millisLeft / (1000));
+				millisLeft -= secs * (1000);
+
+				return zeroPad(days, 2) + " days, " +
+						zeroPad(hours, 2) + " hours, " +
+						zeroPad(mins, 2) + " minutes, and " +
+						zeroPad(secs, 2) + " seconds";
+			},
+			getEventDuration: function(startMillis, endMillis)
+			{
+				if (startMillis > endMillis) return "N/A";
+				return this.getTimeDifferenceBreakdown(startMillis, endMillis);
+			},
+			getEventProgress: function(startMillis, endMillis, currentMillis)
+			{
+				if (startMillis >= endMillis) return "N/A";
+				var eventDurationMillis = endMillis - startMillis;
+				var elapsedMillis = currentMillis - startMillis;
+				var percent = elapsedMillis / eventDurationMillis * 100;
+
+				if (percent < 0)
+				{
+					percent = 0;
+				}
+				else if (percent > 100)
+				{
+					percent = 100;
+				}
+
+				return percent.toFixed(2) + "%";
+			}
+		});
+
+		function zeroPad(num, minLength)
+		{
+			if (Number.isInteger(num) && (num >= 0))
+			{
+				var s = num + "";
+
+				while (s.length < minLength)
+				{
+					s = "0" + s;
+				}
+
+				return s;
+			}
+
+			throw "Argument num must be a nonnegative integer number.";
+		}
+
+		function getElementFromArray(arr, index)
+		{
+			return arr[index];
+		}
+	</script>
+</dom-module>

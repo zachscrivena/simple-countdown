@@ -1,0 +1,133 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Condensed:400,400i,700,700i">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alegreya+Sans:700,700i">
+
+<dom-module id="shared-styles">
+	<template>
+		<style>
+			:host
+			{
+				--normal-font-family: "Roboto Condensed", "Roboto", "Noto", sans-serif;
+				--normal-font-weight: normal;
+				--normal-font-style: normal;
+
+				--heading-font-family: "Alegreya Sans", "Roboto", "Noto", sans-serif;
+				--heading-font-weight: bold;
+				--heading-font-style: italic;
+
+				--subheading-font-family: "Roboto Condensed", "Roboto", "Noto", sans-serif;
+				--subheading-font-weight: bold;
+				--subheading-font-style: normal;
+
+				--menu-font-family: "Roboto Condensed", "Roboto", "Noto", sans-serif;
+				--menu-font-weight: bold;
+				--menu-font-style: normal;
+
+				font-family: var(--normal-font-family);
+				font-weight: var(--normal-font-weight);
+				font-style: var(--normal-font-style);
+			}
+
+			[hidden]
+			{
+				display: none !important;
+			}
+
+			ul,
+			ol
+			{
+				margin-top: 0px;
+			}
+
+			/* links: link-visited-hover-active */
+
+			a
+			{
+				transition: background-color 0.3s ease 0s, color 0.1s ease 0s;
+			}
+
+			a:link
+			{
+				color: var(--color-blue);
+			}
+
+			a:visited
+			{
+				color: var(--color-blue-dark);
+			}
+
+			a:link:hover
+			{
+				background-color: var(--color-blue);
+				color: white;
+			}
+
+			a:visited:hover
+			{
+				background-color: var(--color-blue-dark);
+				color: white;
+			}
+
+			a.plain
+			{
+				text-decoration: none;
+				color: black;
+			}
+
+			a.plain:link:hover
+			{
+				text-decoration: underline;
+				background-color: var(--color-blue);
+				color: white;
+			}
+
+			a.plain:visited:hover
+			{
+				text-decoration: underline;
+				background-color: var(--color-blue-dark);
+				color: white;
+			}
+
+			a.button
+			{
+				display: inline-block;
+				border-radius: 5px;
+				padding: 3px 4px 3px 4px;
+				margin-top: 6px;
+				font-size: 90%;
+				text-decoration: none;
+				white-space: pre;
+			}
+
+			a.button:link
+			{
+				border: 1px solid var(--color-blue);
+				background-color: white;
+				color: var(--color-blue);
+			}
+
+			a.button:visited
+			{
+				border: 1px solid var(--color-blue-dark);
+				background-color: white;
+				color: var(--color-blue-dark);
+			}
+
+			a.button:link:hover
+			{
+				background-color: var(--color-blue);
+				color: white;
+			}
+
+			a.button:visited:hover
+			{
+				background-color: var(--color-blue-dark);
+				color: white;
+			}
+
+			a.button + a.button
+			{
+				margin-left: 6px;
+			}
+		</style>
+	</template>
+</dom-module>
