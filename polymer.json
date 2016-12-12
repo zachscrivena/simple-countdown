@@ -1,0 +1,13 @@
+{
+  "entrypoint": "index.html",
+  "shell": "simple-countdown-app.html",
+  "fragments": [],
+  "sources": [
+   "img/**/*"
+  ],
+  "includeDependencies": [
+   "bower.json",
+   "polymer.json",
+   "bower_components/webcomponentsjs/webcomponents-lite.js"
+  ]
+}

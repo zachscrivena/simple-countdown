@@ -2,7 +2,7 @@
 \!*
 
 ## Build directory:
-build
+/build
 
 ## Bower dependencies:
-bower_components
+/bower_components
