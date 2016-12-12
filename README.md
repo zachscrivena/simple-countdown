@@ -1,6 +1,14 @@
 # simple-countdown
 
-Countdown to an event.
+Countdown to an event. https://zachscrivena.github.io/simple-countdown
+
+## Features
+
+- Configure countdown settings and bookmark the webpage in your web browser.
+
+## Development TODOs
+
+- Escape `&` and `=` in URL query string.
 
 ## Development Notes
 
