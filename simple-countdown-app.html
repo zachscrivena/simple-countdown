@@ -83,6 +83,39 @@
 				width: 100%;
 			}
 
+			div.heading
+			{
+				font-family: var(--heading-font-family);
+				font-weight: var(--heading-font-weight);
+				font-style: var(--heading-font-style);
+				font-size: 210%;
+				padding-top: 0px;
+				padding-bottom: 12px;
+				color: white;
+			}
+
+			div.subheading
+			{
+				font-family: var(--subheading-font-family);
+				font-weight: var(--subheading-font-weight);
+				font-style: var(--subheading-font-style);
+				font-size: 150%;
+				margin: 0px;
+			}
+
+			div.heading a,
+			div.subheading a
+			{
+				text-decoration: inherit;
+				color: inherit;
+			}
+
+			#settings-toggle:hover
+			{
+				background-color: yellow;
+				cursor: pointer;
+			}
+
 			div.panel
 			{
 				border-radius: 8px;
@@ -102,15 +135,6 @@
 				box-sizing: border-box;
 				padding-left: 8px;
 				margin: 12px 0px;
-			}
-
-			div.subheading
-			{
-				font-family: var(--subheading-font-family);
-				font-weight: var(--subheading-font-weight);
-				font-style: var(--subheading-font-style);
-				font-size: 150%;
-				margin: 0px;
 			}
 
 			div.panel#settings
@@ -139,30 +163,35 @@
 			}
 		</style>
 		<div class="main-content">
-			<paper-card heading="Simple Countdown" alt="Simple Countdown">
+			<paper-card>
 				<div class="card-content">
+					<div class="heading">
+						<a href="https://zachscrivena.github.io/simple-countdown" title="https://zachscrivena.github.io/simple-countdown">Simple Countdown</a>
+					</div>
 					<div class="panel" id="settings">
-						<div class="subheading">Settings</div>
-						<div class="subpanel">
-							<paper-input label="Event name" type="text" value="{{eventName}}" always-float-label>
-						</div>
-						<div class="subpanel">
-							Event is ...
-							<paper-radio-group selected="{{eventMode}}">
-								<paper-radio-button name="point">a point in time</paper-radio-button>
-								<paper-radio-button name="interval">an interval of time</paper-radio-button>
-							</paper-radio-group>
-						</div>
-						<!-- Point -->
-						<div class="subpanel" hidden$="[[!eventModeIsPoint]]">
-							<paper-input label="Event time" type="datetime-local" value="{{eventPointTimeString}}" always-float-label>
-						</div>
-						<!-- Interval -->
-						<div class="subpanel" hidden$="[[eventModeIsPoint]]">
-							<paper-input label="Event start time" type="datetime-local" value="{{eventStartTimeString}}" always-float-label>
-						</div>
-						<div class="subpanel" hidden$="[[eventModeIsPoint]]">
-							<paper-input label="Event end time" type="datetime-local" value="{{eventEndTimeString}}" always-float-label>
+						<div class="subheading" id="settings-toggle" on-tap="toggleSettingsSubpanels" title="Click to show or hide settings panel">Settings</div>
+						<div hidden$="[[!showSettingsSubpanels]]">
+							<div class="subpanel">
+								<paper-input label="Event name" type="text" value="{{eventName}}" always-float-label>
+							</div>
+							<div class="subpanel">
+								Event is ...
+								<paper-radio-group selected="{{eventMode}}">
+									<paper-radio-button name="point">a point in time</paper-radio-button>
+									<paper-radio-button name="interval">an interval of time</paper-radio-button>
+								</paper-radio-group>
+							</div>
+							<!-- Point -->
+							<div class="subpanel" hidden$="[[!eventModeIsPoint]]">
+								<paper-input label="Event time" type="datetime-local" value="{{eventPointTimeString}}" always-float-label>
+							</div>
+							<!-- Interval -->
+							<div class="subpanel" hidden$="[[eventModeIsPoint]]">
+								<paper-input label="Event start time" type="datetime-local" value="{{eventStartTimeString}}" always-float-label>
+							</div>
+							<div class="subpanel" hidden$="[[eventModeIsPoint]]">
+								<paper-input label="Event end time" type="datetime-local" value="{{eventEndTimeString}}" always-float-label>
+							</div>
 						</div>
 					</div>
 					<div class="panel" id="status">
@@ -208,6 +237,11 @@
 			properties:
 			{
 				suppressSettingsChange:
+				{
+					type: Boolean,
+					value: true
+				},
+				showSettingsSubpanels:
 				{
 					type: Boolean,
 					value: true
@@ -386,7 +420,7 @@
 						var pair = keyval.split("=");
 						if (pair.length != 2) return;
 						var key = pair[0].trim();
-						var val = pair[1].trim();
+						var val = decodeURIComponent(pair[1].trim());
 
 						switch (key)
 						{
@@ -407,9 +441,33 @@
 
 				return settings;
 			},
+			toggleSettingsSubpanels: function()
+			{
+				this.showSettingsSubpanels = !this.showSettingsSubpanels;
+			},
 			handleSettingsChange: function()
 			{
-				if (!this.suppressSettingsChange) this.refreshUrl();
+				if (this.suppressSettingsChange) return;
+
+				/* refresh URL */
+				var url = "/simple-countdown/#/v1?";
+				// var url = "/#/v1?";
+				url += "name=" + encodeURIComponent(this.eventName);
+				url += "&mode=" + encodeURIComponent(this.eventMode);
+				url += "&point=" + encodeURIComponent(this.eventPointTimeString);
+				url += "&start=" + encodeURIComponent(this.eventStartTimeString);
+				url += "&end=" + encodeURIComponent(this.eventEndTimeString);
+				history.replaceState(null, null, url);
+
+				/* refresh page title */
+				if ((this.eventName == "Countdown") || (this.eventName.trim() == ""))
+				{
+					document.title = "Simple Countdown";
+				}
+				else
+				{
+					document.title = this.eventName + " | Simple Countdown";
+				}
 			},
 			refreshCountdown: function(p)
 			{
@@ -499,16 +557,6 @@
 			{
 				if (Number.isNaN(timeEpochMillis)) return "N/A";
 				return timeString;
-			},
-			refreshUrl: function()
-			{
-				var url = "/simple-countdown/#/v1?";
-				url += "name=" + this.eventName;
-				url += "&mode=" + this.eventMode;
-				url += "&point=" + this.eventPointTimeString;
-				url += "&start=" + this.eventStartTimeString;
-				url += "&end=" + this.eventEndTimeString;
-				history.replaceState(null, null, url);
 			}
 		});
 
