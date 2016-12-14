@@ -4,11 +4,9 @@ Countdown to an event. https://zachscrivena.github.io/simple-countdown
 
 ## Features
 
-- Configure countdown settings and bookmark the webpage in your web browser.
+- Easily configure your countdown settings and bookmark the webpage in your web browser.
 
 ## Development TODOs
-
-- Escape `&` and `=` in URL query string.
 
 ## Development Notes
 
